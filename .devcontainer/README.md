@@ -72,10 +72,11 @@ From within the **dev container**, download models to run the example workflows:
 
 ```sh
 cd /workspace
+conda activate comfystream
 python src/comfystream/scripts/setup_models.py --workspace /ComfyUI
 ```
 
-For more info about configuring model downloads, see [src/comfystream/scripts/README.md](./src/comfystream/scripts/README.md)
+For more info about configuring model downloads, see [src/comfystream/scripts/README.md](../src/comfystream/scripts/README.md)
 
 By following these steps, you should be able to set up and run your development container for ComfyStream efficiently.
 
@@ -99,9 +100,9 @@ The `launch.json` includes sample launch configurations for ComfyStream and Comf
 
 ## Setting the Python Environment
 
-Conda is not initiated in the bash shell to provide better interoperability with VS Code Shell Integration.
+Conda is initialized in the bash shell with no environment activated to provide better interoperability with VS Code Shell Integration.
 
-To launch a new terminal in either `comfystream` or `comfyui` environment:
+VS Code will automatically activate the `comfystream` environment, unless you change it:
 
 1. From VSCode, press `Ctrl-Shift-P`
 2. Choose `Select Python Interpreter`
@@ -116,6 +117,7 @@ Start ComfyUI:
 
 ```sh
 cd /workspace/ComfyUI
+conda activate comfyui
 python main.py --listen
 ```
 
@@ -123,13 +125,16 @@ When using TensorRT engine enabled workflows, you should include the `---disable
 
 ```sh
 cd /workspace/ComfyUI
+conda activate comfyui
 python main.py --listen --disable-cuda-malloc
 ```
 
 ### Starting ComfyStream
 
+Start another terminal and use:
 ```sh
 cd /workspace
+conda activate comfystream
 python server/app.py --workspace /ComfyUI --media-ports=5678 --host=0.0.0.0 --port 8888
 ```
 
