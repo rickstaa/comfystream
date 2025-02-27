@@ -1,15 +1,14 @@
 #!/bin/bash
 
-# Install npm packages if needed
-cd /comfystream/ui
-if [ ! -d "node_modules" ]; then
-    npm install --legacy-peer-deps   
-fi
+chmod +x /workspace/comfystream/docker/entrypoint.sh
+cd /workspace/comfystream
 
-# Create a symlink to the ComfyUI workspace
-if [ ! -d "/comfystream/ComfyUI" ]; then
-    ln -s /ComfyUI /comfystream/ComfyUI
-fi
+# Install Comfystream in editable mode.
+echo -e "\e[32mInstalling Comfystream in editable mode...\e[0m"
+/workspace/miniconda3/envs/comfystream/bin/python3 -m pip install -e . > /dev/null
 
-cd /comfystream
+# Create a symlink to the entrypoint script.
+echo 'alias prepare_examples="/workspace/comfystream/docker/entrypoint.sh --download-models --build-engines"' >> ~/.bashrc
+echo -e "\e[32mContainer ready! Run 'prepare_examples' to download models and build engines for example workflows.\e[0m"
+
 /bin/bash
