@@ -3,10 +3,10 @@ write_files:
   - path: /etc/caddy/comfystream.caddy
     content: |
       :8189 {
-          reverse_proxy http://127.0.0.1:8188
-          basic_auth {
-              comfyadmin <PASSWORD_PLACEHOLDER>
-          }
+        reverse_proxy http://127.0.0.1:8188
+        basic_auth {
+          comfyadmin <PASSWORD_PLACEHOLDER>
+        }
       }
 
 runcmd:
@@ -15,7 +15,7 @@ runcmd:
   - curl -1sLf 'https://dl.cloudsmith.io/public/caddy/testing/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-testing.list
   - sudo apt update
   - sudo apt install -y caddy
-  - echo 'import /etc/caddy/comfystream.caddy' | sudo tee -a /etc/caddy/Caddyfile
+  - echo 'import /etc/caddy/comfystream.caddy' | sudo tee -a /etc/caddy/Caddyfile > /dev/null
   - sudo systemctl restart caddy
   # Install, configure, and start Comfystream and ComfyUI
   - docker pull <DOCKER_IMAGE_PLACEHOLDER>

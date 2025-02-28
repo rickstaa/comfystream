@@ -2,7 +2,6 @@
 to the user's location.
 """
 
-import base64
 import logging
 import os
 import secrets
@@ -12,6 +11,7 @@ import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
+import bcrypt
 import click
 import requests
 from colorama import Fore, Style, init
@@ -30,7 +30,7 @@ TENSORDOCK_ENDPOINTS = {
 # Requirements for host nodes.
 DEFAULT_MAX_PRICE = 0.5  # USD per hour
 MIN_REQUIREMENTS = {
-    "minvCPUs": 8,
+    "minvCPUs": 4,
     "minRAM": 16,  # GB
     "minStorage": 100,  # GB
     "minVRAM": 20,  # GB
@@ -130,6 +130,18 @@ def is_strong_password(password: str, min_length: int = 32) -> bool:
     )
 
 
+def hash_password(password: str) -> str:
+    """Create hash a password using bcrypt.
+
+    Args:
+        password: The password to hash.
+
+    Returns:
+        The hashed password.
+    """
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt(10)).decode().strip()
+
+
 def get_cloud_init_script(
     docker_image: str = "livepeer/comfystream:latest",
 ) -> Tuple[str, Dict[str, str]]:
@@ -144,21 +156,23 @@ def get_cloud_init_script(
         replacements.
     """
     try:
-        with open(CLOUD_INIT_PATH, "r") as file:
+        with open(CLOUD_INIT_PATH, "r", encoding="utf-8") as file:
             cloud_init_content = file.read()
     except FileNotFoundError:
         raise FileNotFoundError(f"Cloud-init template not found: {CLOUD_INIT_PATH}")
+    cloud_init_content = cloud_init_content.replace("\r\n", "\n").replace("\r", "\n")
 
-    # Replace placeholders in the cloud-init script.
     password = generate_strong_password()
-    encoded_password = base64.b64encode(password.encode()).decode()
+    encoded_password = hash_password(password)
     cloud_init_content = cloud_init_content.replace(
         "<PASSWORD_PLACEHOLDER>", encoded_password
     )
-    cloud_init_content = cloud_init_content.replace("<DOCKER_IMAGE_PLACEHOLDER>", docker_image)
+    cloud_init_content = cloud_init_content.replace(
+        "<DOCKER_IMAGE_PLACEHOLDER>", docker_image.strip()
+    )
     replacements = {
         "password": password,
-        "docker_image": docker_image,
+        "docker_image": docker_image.strip(),
     }
 
     return cloud_init_content, replacements
