@@ -2,12 +2,7 @@
 requests
 geopy
 colorama
-<<<<<<< HEAD
 qrcode_terminal
 click
 bcrypt
-=======
-qrcode
-qrcode_terminal
-click
->>>>>>> main
+rich

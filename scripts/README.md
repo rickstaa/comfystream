@@ -9,24 +9,33 @@ This directory contains various helper scripts designed to streamline working wi
 ### Spinup TensorDock ComfyStream Instance
 
 1. **Create a Tensordock Account**: Register at [Tensordock](https://dashboard.tensordock.com/register), attach a credit card, and create an API key and token.
-2. **Check Available Options** *(Optional but Recommended)*:  
+2. **Set Up a Python Virtual Environment**:
+   Create and activate a virtual environment using [Conda](https://docs.anaconda.com/miniconda/) and install the required dependencies:
+
+    ```bash
+    conda create -n comfystream python=3.8
+    conda activate comfystream
+    pip install -r requirements.txt
+    ```
+
+3. **Check Available Options** *(Optional but Recommended)*:  
    To see all available script options, run:
 
     ```bash
     python spinup_comfystream_tensordock.py --help
     ```
 
-3. **Run the Script**:  
+4. **Run the Script**:  
    Execute the following command to spin up a ComfyStream instance:
 
     ```bash
     python spinup_comfystream_tensordock.py --api-key <API_KEY> --api-token <API_TOKEN>
     ```
 
-4. **Access the Server**:  
+5. **Access the Server**:  
    The script will set up the instance, install dependencies, and start the server. This process will take a few minutes. Once completed, you can access the ComfyStream server and UI using the provided URLs.
 
-5. **Stop the Server**:  
+6. **Stop the Server**:  
    To stop the server, run:
 
     ```bash
