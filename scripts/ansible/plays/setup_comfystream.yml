@@ -1,0 +1,71 @@
+---
+- name: Setup ComfyStream and ComfyUI
+  hosts: all
+  become: yes
+
+  tasks:
+    # Setup auth proxy for ComfyUI (requires port 8189 to be open)
+    - name: Add Caddy GPG key
+      apt_key:
+        url: https://dl.cloudsmith.io/public/caddy/testing/gpg.key
+        state: present
+    - name: Add Caddy repository
+      apt_repository:
+        repo: deb [signed-by=/usr/share/keyrings/caddy-testing-archive-keyring.gpg] https://dl.cloudsmith.io/public/caddy/testing/debian.deb.txt
+        state: present
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+    - name: Install Caddy
+      apt:
+        name: caddy
+        state: present
+    - name: Write Caddy configuration for ComfyUI
+      copy:
+        dest: /etc/caddy/comfystream.caddy
+        content: |
+          :8189 {
+              reverse_proxy http://127.0.0.1:8188
+              basic_auth {
+                  comfyadmin {{ password_placeholder }}
+              }
+          }
+    - name: Import Comfystream Caddy configuration
+      lineinfile:
+        path: /etc/caddy/Caddyfile
+        line: "import /etc/caddy/comfystream.caddy"
+        create: yes
+    - name: Restart Caddy service
+      systemd:
+        name: caddy
+        state: restarted
+
+    # Install, configure, and start Comfystream and ComfyUI
+    - name: Pull Docker image
+      docker_image:
+        name: "{{ docker_image }}"
+        source: pull
+    - name: Create directories for ComfyUI models and output
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+      with_items:
+        - "{{ ansible_env.HOME }}/models/ComfyUI--models"
+        - "{{ ansible_env.HOME }}/models/ComfyUI--output"
+    - name: Run Comfystream Docker container
+      docker_container:
+        name: comfystream
+        image: "{{ docker_image }}"
+        state: started
+        restart_policy: unless-stopped
+        stop_timeout: 300
+        gpus: all
+        volumes:
+          - "{{ ansible_env.HOME }}/models/ComfyUI--models:/workspace/ComfyUI/models"
+          - "{{ ansible_env.HOME }}/models/ComfyUI--output:/workspace/ComfyUI/output"
+        ports:
+          - "3000:3000"
+          - "8188:8188"
+          - "8889:8889"
+        command: "--download-models --build-engines --server"
