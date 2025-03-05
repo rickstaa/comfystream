@@ -3,7 +3,7 @@ nodes:
   comfyui-tensorrt:
     name: "ComfyUI TensorRT"
     url: "https://github.com/eliteprox/ComfyUI_TensorRT.git"
-    branch: "fix/mediapipe-protbuf-conflict"
+    branch: "fix/onnxconverter-converter"
     type: "tensorrt"
     dependencies: 
       - "onnxruntime-gpu>=1.17.0"
